@@ -1,4 +1,19 @@
 let countryJSON = [];
+const regionals = document.getElementById('regionals');
+const borders = document.getElementById('borders');
+const borderBlock = document.getElementById('borderBlock');
+borderBlock.style.display = 'none';
+
+const flag = document.getElementById('flag');
+flag.style.display = 'none';
+
+const regionalsTable = document.getElementById('regionalsTable');
+regionalsTable.style.display = 'none';
+
+
+function init() {
+    regionalsTable.style.display = 'block';
+}
 
 function setCountryInfo(country) {
     if (country) {
@@ -7,31 +22,42 @@ function setCountryInfo(country) {
         document.getElementById('language').value = country.languages[0].name;
         document.getElementById('currency').value = country.currencies[0].name;
 
-        const borders = document.getElementById('borders');
         borders.innerHTML = '';
-
-        country.borders.forEach((border, index) => {
-            const html = `<li>${border}</li>`;
-            borders.innerHTML += html;
-        });
+        if (country.borders.length > 0) {
+            borderBlock.style.display = 'block';
+            country.borders.forEach((border, index) => {
+                const html = `<li>${border}</li>`;
+                borders.innerHTML += html;
+            });
+        } else {
+            borderBlock.style.display = 'none';
+        }
 
         // assign flag
-        document.getElementById('flag').setAttribute('src', country.flag);
+        if (country.flag) {
+            flag.style.display = 'block';
+            flag.setAttribute('src', country.flag);
+        } else {
+            flag.style.display = 'none';
+        }
 
-        const regionals = document.getElementById('regionals');
         regionals.innerHTML = '';
+        if (country.regionalBlocs.length > 0) {
+            regionalsTable.style.display = 'inline-table';
+            country.regionalBlocs.forEach((region, index) => {
+                const html =
+                    `
+                    <tr>
+                        <td>${region.acronym}</td>
+                        <td>${region.name}</td>
+                    </tr>
+                `;
 
-        country.regionalBlocs.forEach((region, index) => {
-            const html =
-                `
-                <tr>
-                    <td>${region.acronym}</td>
-                    <td>${region.name}</td>
-                </tr>
-            `;
-
-            regionals.innerHTML += html;
-        });
+                regionals.innerHTML += html;
+            });
+        } else {
+            regionalsTable.style.display = 'none';
+        }
 
         renderMap(country.latlng, country.name);
 
@@ -82,7 +108,6 @@ function renderMap(latlng, countryName) {
     const lng = latlng[1];
 
     mymap.setView([lat, lng], 5);
-
 
     L.marker([lat, lng]).addTo(mymap)
         .bindPopup(`${countryName}`).openPopup();
